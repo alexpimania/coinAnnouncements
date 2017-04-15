@@ -30,13 +30,14 @@ def downloadTweets(daysToScan):
    for chunk in chunks(coinNames, 10):
       print(chunk)
       coinsQuery = " OR ".join(chunk)
-      for tweet in tweepy.Cursor(api.search, q=coinsQuery, since=sinceDate, lang="en").items(1000):
-         tweets.append(tweet)
+      for tweet in tweepy.Cursor(api.search, q=coinsQuery, tweet_mode="extended", since=sinceDate, lang="en").items(1000):
+         if not tweet in tweets:
+            tweets.append(tweet)
    return tweets
    
 def saveTweets(tweets):
    import pickle
-   with open("savedTweets.txt", "w+") as tweetsFile:
+   with open("savedTweets.txt", "wb") as tweetsFile:
       tweetsFile.write(pickle.dumps(tweets))
       
 
