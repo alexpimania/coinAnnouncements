@@ -1,10 +1,9 @@
-daysToScan = 3
+daysToScan = 1.5
+
 
 def getSearchTerms():
    import json
-   coinNames = json.loads(open("coinNames.txt").read())
-   eventNames = json.loads(open("eventNames.txt").read())
-   return [coinNames, eventNames]
+   return json.loads(open("searchTerms.txt").read())
 
 
 def chunks(listToCut, maxLength):
@@ -19,6 +18,7 @@ def initTwitterApi():
    auth.set_access_token(twitterKeys[2], twitterKeys[3])
    api = tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
    return api
+    
     
 def downloadTweets(daysToScan):
    import tweepy
@@ -35,13 +35,12 @@ def downloadTweets(daysToScan):
             tweets.append(tweet)
    return tweets
    
+   
 def saveTweets(tweets):
    import pickle
    with open("savedTweets.txt", "wb") as tweetsFile:
       tweetsFile.write(pickle.dumps(tweets))
       
-
-   
                
 coinNames, eventNames = getSearchTerms()           
 api = initTwitterApi()
