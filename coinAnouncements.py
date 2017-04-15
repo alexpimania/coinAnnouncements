@@ -1,8 +1,9 @@
 def extractTweets():
-   import json
+   import pickle
    import datefinder
    import time
-   tweets = json.loads(open("savedTweets.txt").read())
+   
+   tweets = pickel.loads(open("savedTweets.txt").read())
    
    for tweet in tweets:
       tweetJson = tweet._json
@@ -50,13 +51,13 @@ def extractEventDates(coinTweets):
       for tweet in coinTweets[coin]["tweets"]:
          for date in datefinder.find_dates(tweet):
             coinDates.append(date)
-      coinEvent[coin] = {"tweets": coinTweets[coin]["tweets"], "dates":coinDates, "importance":coinTweets[coin]["importance"]}
-      return coinEvents
+      coinTweets[coin]["dates"] = coinDates
+      return coinTweets
          
 
 validTweets = getCoinTweets()
 categorizedTweets = categorizeTweets(validTweets)
 coinEvents = extractEventDates(categorizedTweets)
 for coin in coinEvents:
-   print("Coin: \n\n" + coin["coin"] + "\n\n\nTweets: \n\n" + "\n".join(coin["tweets"]) + "\n\n\nDates: \n\n" + "\n".join(coin["dates"]))
+   print("Coin: \n\n" + coin + "\n\n\nTweets: \n\n" + "\n".join(coin["tweets"]) + "\n\n\nDates: \n\n" + "\n".join(coin["dates"]))
    print("\n\n\n\n")
