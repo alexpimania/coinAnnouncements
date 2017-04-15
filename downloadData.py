@@ -21,6 +21,7 @@ def initTwitterApi():
    return api
     
 def downloadTweets(daysToScan):
+   import pickle
    import tweepy
    import time
    from datetime import datetime
@@ -28,6 +29,7 @@ def downloadTweets(daysToScan):
    tweets = []
    sinceDate=datetime.fromtimestamp(time.time() - 60*60*24 * daysToScan).strftime('%Y-%m-%d')
    for chunk in chunks(coinNames, 10):
+      print(chunk)
       coinsQuery = " OR ".join(chunk)
       for tweet in tweepy.Cursor(api.search, q=coinsQuery, since=sinceDate, lang="en").items(1000):
          tweets.append(tweet)
@@ -36,7 +38,7 @@ def downloadTweets(daysToScan):
 def saveTweets(tweets):
    import json
    with open("savedTweets.txt", "w+") as tweetsFile:
-      tweetsFile.write(json.dumps(tweets))
+      tweetsFile.write(pickle.dumps(tweets))
       
 
    
