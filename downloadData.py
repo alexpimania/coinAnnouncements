@@ -20,7 +20,7 @@ def initTwitterApi():
    api = tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
    return api
     
-def downloadTweets(daysToScan):s
+def downloadTweets(daysToScan):
    import tweepy
    import time
    from datetime import datetime
