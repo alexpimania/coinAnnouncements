@@ -1,29 +1,34 @@
-def extractTweets():
+def getSearchTerms():
+   import json
+   coinNames = json.loads(open("coinNames.txt").read())
+   eventNames = json.loads(open("eventNames.txt").read())
+   return [coinNames, eventNames]
+
+def extractTweets(events):
    import pickle
    import datefinder
    import time
    
-   tweets = pickel.loads(open("savedTweets.txt").read())
-   
+   tweets = pickle.loads(open("savedTweets.txt", "rb").read())
+   validTweets = []
    for tweet in tweets:
       tweetJson = tweet._json
       userId = tweetJson["id"]
-      tweetText = tweetJson["text"]
+      tweetText = tweetJson["full_text"]
       retweets = tweetJson["retweet_count"]
+      usersPosted = []
       
       tweetDateText = tweet._json["created_at"]
-      tweetDateTuple = [date for date in datefinder.find_dates(tweetDate)][0].timetuple()
-      tweetDate = time.mktime(dateTimeTweetDate)
+      tweetDateTuple = [date for date in datefinder.find_dates(tweetDateText)][0].timetuple()
+      tweetDate = time.mktime(tweetDateTuple)
       currentTime = time.time()
-      timeSinceTweet = (currentTime - currentTime) * 0.01
+      timeSinceTweet = (currentTime - tweetDate) * 0.01
       
       importance = retweets/timeSinceTweet
-      
-      for event in events:
-         if event in tweetText and not userId in usersPosted:
-            validTweets.append({"tweet":tweetText, "date":"", "importance":importance})
-            usersPosted.append(userId)
-               
+      if any(event in tweetText for event in events) and not userId in usersPosted and not tweetText in [tweet["tweet"] for tweet in validTweets]: 
+         validTweets.append({"tweet":tweetText, "date":"", "importance":importance})
+         usersPosted.append(userId) 
+           
    return validTweets
    
 
@@ -49,15 +54,15 @@ def extractEventDates(coinTweets):
    for coin in coinTweets:
       coinDates = []
       for tweet in coinTweets[coin]["tweets"]:
-         for date in datefinder.find_dates(tweet):
-            coinDates.append(date)
+         coinDates.extend([str(date) for date in datefinder.find_dates(tweet)])
       coinTweets[coin]["dates"] = coinDates
-      return coinTweets
+   return coinTweets
          
-
-validTweets = getCoinTweets()
+         
+coinNames, eventNames = getSearchTerms() 
+validTweets = extractTweets(eventNames)
 categorizedTweets = categorizeTweets(validTweets)
 coinEvents = extractEventDates(categorizedTweets)
 for coin in coinEvents:
-   print("Coin: \n\n" + coin + "\n\n\nTweets: \n\n" + "\n".join(coin["tweets"]) + "\n\n\nDates: \n\n" + "\n".join(coin["dates"]))
-   print("\n\n\n\n")
+   print("Coin: " + coin + "\nTweets: \n" + "\n".join(coinEvents[coin]["tweets"]) + "\nDates: \n" + "\n".join(coinEvents[coin]["dates"]) + "\nImportance: " + str(coinEvents[coin]["importance"]))
+   print("\n\n")
