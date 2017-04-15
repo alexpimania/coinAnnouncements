@@ -1,0 +1,1 @@
+["update", "release", "testing", "aplha", "beta", "announce", "interview", "investment round", "launch", "added", "improvments"]
