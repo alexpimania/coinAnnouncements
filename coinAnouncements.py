@@ -1,14 +1,17 @@
 def getSearchTerms():
    import json
-   return json.loads(open("searchTerms.txt").read())
-
-def removeLink(text):
-   import re
-   link = re.search("(?P<url>https?://[^\s]+)", text)
-   if link:
-      link = link.group("url")
-      text = text.replace(link, "").replace("  ", " ")
-   return text
+   from poloniex import Poloniex
+   polo = Poloniex()
+   
+   eventNames = ["upgrade", "updates", "releas", "testing", "aplha", "beta", "announce", "interview", "major", "launch", "add", "improve", "v1"]
+   coinMarketList = [market[market.index("_") + 1:] for market in polo.return24hVolume().keys() if "BTC_" in market]
+   coinList = polo.returnCurrencies()
+   coinNames = []
+   ignoredCoins = ["burst", "clams", "counterparty", "expanse", "dash", "horizon", "magi", "nem", "nexium", "nxt", "omni", "radium", "ripple", "shadow", "stellar", "tether"]
+   for coin in coinList:
+      if not coinList[coin]["name"].lower() in ignoredCoins and coin in coinMarketList:
+         coinNames.append(coinList[coin]["name"].lower())
+   return [coinNames, eventNames]
 
 def extractTweets(events):
    import pickle
@@ -19,17 +22,15 @@ def extractTweets(events):
    announcements = []
    for tweet in tweets:
       data = tweet._json
-      text = removeLink(data["full_text"])
+      text = data["full_text"]
       likes = data["favorite_count"]
       dateText = data["created_at"]
       
       dateTuple = [date for date in extractDate(dateText)][0].timetuple()
       ageDays = (time.time() - time.mktime(dateTuple)) / (24*60*60)
-      
       importance = likes
-      if any(event in text.lower() for event in events) and not text.lower() in [tweet["tweet"].lower() for tweet in announcements]: 
+      if any(event in text for event in events):
          announcements.append({"tweet" : text, "importance" : importance, "ageDays" : ageDays})
-
    return announcements
    
 
@@ -57,5 +58,5 @@ for coin in sorted(coinTweets, key=lambda k: 0 - coinTweets[k]["importance"]):
    print("Coin: " + coin)
    print("Importance: " + str(coinTweets[coin]["importance"]))
    for tweet in tweets:
-      print(tweet + " || Age: " + str(round(tweets[tweet], 2)) + " days")
+      print(tweet.strip() + " || Age: " + str(round(tweets[tweet], 2)) + " days")
    print("\n\n")
