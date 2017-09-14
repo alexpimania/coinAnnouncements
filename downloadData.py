@@ -55,8 +55,8 @@ def getTwitterTweets(coinNames, period):
    api = tweepy.API(auth, wait_on_rate_limit_notify=True, wait_on_rate_limit=True)
    
    sinceDate = datetime.fromtimestamp(time.time() - period).strftime('%Y-%m-%d')
-   for chunk in chunks(coinNames, 10):
-      for tweet in tweepy.Cursor(api.search, q=" OR ".join(chunk), tweet_mode="extended", since=sinceDate, lang="en").items(1000):
+   for coin in coinNames:
+      for tweet in tweepy.Cursor(api.search, q=coin, tweet_mode="extended", since=sinceDate, lang="en").items(1000):
          tweetText = removeLink(tweet._json["full_text"]).lower()
          translator = str.maketrans('', '', string.punctuation)
          tweetText = tweetText.translate(translator)
